@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Formulário - Análise de Crédito</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+      background: url("omnibg.jpg") no-repeat center center fixed;
+      background-size: cover;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .chat-container {
+      width: 95%;
+      max-width: 420px;
+      background: rgba(255, 255, 255, 0.92);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .header {
+      font-size: 14px;
+      font-weight: 600;
+      color: #555;
+      text-align: center;
+    }
+
+    .bubble {
+      background: #f1f1f1;
+      padding: 14px;
+      border-radius: 14px;
+      font-size: 15px;
+      line-height: 1.4;
+    }
+
+    .agent {
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: #2b7cff;
+    }
+
+    .typing {
+      font-size: 18px;
+      letter-spacing: 4px;
+      animation: blink 1.4s infinite both;
+    }
+
+    @keyframes blink {
+      0% { opacity: 0.2; }
+      20% { opacity: 1; }
+      100% { opacity: 0.2; }
+    }
+
+    .input-area {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+
+    input, select, button {
+      flex: 1;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      font-size: 15px;
+    }
+
+    button {
+      background: #2b7cff;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    button.secondary {
+      background: #e5e5e5;
+      color: #333;
+    }
+
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .option-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .option-row input {
+      flex: 0;
+      width: auto;
+    }
+  </style>
+</head>
+<body>
+
+<div class="chat-container" id="chat">
+  <div class="header" id="stepHeader">Análise de Crédito – Etapa 1</div>
+  <div class="bubble" id="message"></div>
+  <div id="inputContainer"></div>
+</div>
+
+<script>
+  const messageEl = document.getElementById("message");
+  const inputContainer = document.getElementById("inputContainer");
+  const stepHeader = document.getElementById("stepHeader");
+
+  const agentName = "Luciana (Agente de IA)";
+  const data = {};
+  let step = 1;
+  let keepHistory = true;
+  let firstAgentShown = false;
+
+  function setStep(num) {
+    stepHeader.textContent = `Análise de Crédito – Etapa ${num}`;
+  }
+
+  function clearInput() {
+    inputContainer.innerHTML = "";
+  }
+
+  function clearMessage() {
+    if (!keepHistory) {
+      messageEl.innerHTML = "";
+    }
+  }
+
+  function showTyping(callback, showAgent = false) {
+    clearMessage();
+
+    if (showAgent && !firstAgentShown) {
+      messageEl.innerHTML += `<div class="agent">${agentName}</div>`;
+      firstAgentShown = true;
+    }
+
+    messageEl.innerHTML += `<span class="typing">. . .</span><br>`;
+    clearInput();
+
+    setTimeout(() => {
+      messageEl.innerHTML = messageEl.innerHTML.replace(/<span class="typing">\\. \\. \\.<\/span><br>$/, "");
+      callback();
+    }, 3000);
+  }
+
+  function appendMessage(text, showAgent = false) {
+    if (showAgent && !firstAgentShown) {
+      messageEl.innerHTML += `<div class="agent">${agentName}</div>`;
+      firstAgentShown = true;
+    }
+    messageEl.innerHTML += `${text}<br>`;
+  }
+
+  // Abertura
+  function startConversation() {
+    setStep(1);
+
+    showTyping(() => {
+      appendMessage("Olá! Me chamo Luciana e sou a atendente de IA do agente Omni Banco do estado da Paraíba.", true);
+    }, true);
+
+    setTimeout(() => {
+      showTyping(() => {
+        appendMessage("Vou te ajudar a realizar sua análise de crédito de forma rápida, segura e sem compromisso.");
+      });
+    }, 3500);
+
+    setTimeout(() => {
+      showTyping(() => {
+        appendMessage("Para iniciarmos esta etapa, por favor me informe:<br><strong>Qual é o seu nome completo?</strong>");
+        inputContainer.innerHTML = `
+          <div class="input-area">
+            <input type="text" id="nome" placeholder="Digite seu nome completo" />
+            <button onclick="saveName()">Enviar</button>
+          </div>
+        `;
+      });
+    }, 7000);
+  }
+
+  function saveName() {
+    const nome = document.getElementById("nome").value.trim();
+    if (!nome) return;
+    data.nome = nome;
+    keepHistory = false;
+    firstAgentShown = false;
+    askVehicleType();
+  }
+
+  function askVehicleType() {
+    setStep(2);
+    showTyping(() => {
+      messageEl.innerHTML = "";
+      appendMessage("Você está buscando um veículo:");
+      inputContainer.innerHTML = `
+        <div class="options">
+          <div class="option-row">
+            <input type="radio" name="tipoVeiculo" value="Usado ou SemiNovo" onclick="setVehicleType(this.value)">
+            <label>Usado ou SemiNovo</label>
+          </div>
+          <div class="option-row">
+            <input type="radio" name="tipoVeiculo" value="Zero KM" onclick="setVehicleType(this.value)">
+            <label>Zero KM</label>
+          </div>
+        </div>
+      `;
+    });
+  }
+
+  function setVehicleType(type) {
+    data.veiculoTipo = type;
+    if (type === "Usado ou SemiNovo") {
+      askPlate();
+    } else {
+      askBrandModel();
+    }
+  }
+
+  function askPlate() {
+    setStep(3);
+    showTyping(() => {
+      messageEl.innerHTML = "";
+      appendMessage("Por favor, informe a placa do veículo:");
+      inputContainer.innerHTML = `
+        <div class="input-area">
+          <input type="text" id="placa" placeholder="Ex: ABC1D23" />
+          <button onclick="savePlate()">Enviar</button>
+        </div>
+      `;
+    });
+  }
+
+  function savePlate() {
+    const placa = document.getElementById("placa").value.trim();
+    if (!placa) return;
+    data.placa = placa;
+    askConsent();
+  }
+
+  function askBrandModel() {
+    setStep(3);
+    showTyping(() => {
+      messageEl.innerHTML = "";
+      appendMessage("Informe a marca e o modelo do veículo:");
+      inputContainer.innerHTML = `
+        <div class="input-area">
+          <input type="text" id="marca" placeholder="Marca" />
+        </div>
+        <div class="input-area">
+          <input type="text" id="modelo" placeholder="Modelo" />
+          <button onclick="saveBrandModel()">Enviar</button>
+        </div>
+      `;
+    });
+  }
+
+  function saveBrandModel() {
+    const marca = document.getElementById("marca").value.trim();
+    const modelo = document.getElementById("modelo").value.trim();
+    if (!marca || !modelo) return;
+    data.marca = marca;
+    data.modelo = modelo;
+    askConsent();
+  }
+
+  function askConsent() {
+    setStep(4);
+    showTyping(() => {
+      messageEl.innerHTML = "";
+      appendMessage("Antes de continuar, alguns dados sensíveis serão solicitados para a análise de crédito. Você está de acordo em prosseguir?");
+      inputContainer.innerHTML = `
+        <div class="options">
+          <button onclick="setConsent(true)">Sim, estou de acordo</button>
+          <button class="secondary" onclick="setConsent(false)">Não, prefiro não continuar</button>
+        </div>
+      `;
+    });
+  }
+
+  function setConsent(agree) {
+    if (!agree) {
+      showTyping(() => {
+        messageEl.innerHTML = "";
+        appendMessage("Sem problemas! Quando quiser, estarei à disposição.");
+        clearInput();
+      });
+      return;
+    }
+    askFinancials();
+  }
+
+  function askFinancials() {
+    setStep(5);
+    showTyping(() => {
+      messageEl.innerHTML = "";
+      appendMessage("Qual o valor aproximado do veículo?");
+      inputContainer.innerHTML = `
+        <div class="input-area">
+          <input type="number" id="valorVeiculo" placeholder="Ex: 50000" />
+          <button onclick="saveVehicleValue()">Enviar</button>
+        </div>
+      `;
+    });
+  }
+
+  function saveVehicleValue() {
+    const valor = parseFloat(document.getElementById("valorVeiculo").value);
+    if (!valor || valor <= 0) return;
+    data.valorVeiculo = valor;
+    askIncome();
+  }
+
+  function askIncome() {
+    setStep(6);
+    showTyping(() => {
+      messageEl.innerHTML = "";
+      appendMessage("Qual é sua renda mensal aproximada?");
+      inputContainer.innerHTML = `
+        <div class="input-area">
+          <input type="number" id="renda" placeholder="Ex: 3500" />
+          <button onclick="saveIncome()">Enviar</button>
+        </div>
+      `;
+    });
+  }
+
+  function saveIncome() {
+    const renda = parseFloat(document.getElementById("renda").value);
+    if (!renda || renda <= 0) return;
+    data.renda = renda;
+    askEntry();
+  }
+
+  function askEntry() {
+    setStep(7);
+    showTyping(() => {
+      messageEl.innerHTML = "";
+      appendMessage("Agora, informe o valor de entrada que pretende dar no veículo.<br><br>Importante: essa entrada é paga diretamente ao vendedor ou concessionária, nunca para nós.");
+      inputContainer.innerHTML = `
+        <div class="input-area">
+          <input type="number" id="entrada" placeholder="Ex: 10000" />
+          <button onclick="validateEntry()">Enviar</button>
+        </div>
+      `;
+    });
+  }
+
+  function validateEntry() {
+    const entrada = parseFloat(document.getElementById("entrada").value);
+    if (!entrada || entrada < 0) return;
+
+    data.entrada = entrada;
+
+    const valorVeiculo = data.valorVeiculo;
+    const entradaMinima20 = valorVeiculo * 0.2;
+    const entradaMinima167 = valorVeiculo * 0.167;
+
+    if (entrada < entradaMinima20) {
+      const entradaFormatada = entrada.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+      const minimaFormatada = entradaMinima20.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+
+      setStep(7);
+      showTyping(() => {
+        messageEl.innerHTML = "";
+        appendMessage(
+          `Sua entrada está um pouco abaixo do recomendado.<br><br>Para facilitar a aprovação, o ideal seria cerca de ${minimaFormatada}.<br><br>Deseja ajustar sua entrada ou continuar a análise com ${entradaFormatada}?`
+        );
+        inputContainer.innerHTML = `
+          <div class="options">
+            <button onclick="askEntry()">Ajustar valor da entrada</button>
+            <button onclick="finalize()">Continuar análise com ${entradaFormatada}</button>
+          </div>
+        `;
+      });
+    } else {
+      finalize();
+    }
+  }
+
+  function calculatePMT(PV, i, n) {
+    const rate = i / 100;
+    return PV * (rate * Math.pow(1 + rate, n)) / (Math.pow(1 + rate, n) - 1);
+  }
+
+  function finalize() {
+    setStep(8);
+    showTyping(() => {
+      messageEl.innerHTML = "";
+      appendMessage("Perfeito! Revise suas informações e, quando estiver pronto, envie para análise.");
+      inputContainer.innerHTML = `
+        <button onclick="sendToWhatsApp()">Finalizar e Enviar Formulário via WhatsApp</button>
+      `;
+    });
+  }
+
+  function sendToWhatsApp() {
+    const PV = data.valorVeiculo - data.entrada;
+    const parcela = calculatePMT(PV, 5.2, 48);
+    const limiteParcela = data.renda * 0.33;
+
+    let cod = "0000";
+    if (parcela > limiteParcela) cod = "0001";
+    if (data.entrada < data.valorVeiculo * 0.167) cod = "0002";
+
+    let texto = `Nova Solicitação de Crédito\n\n`;
+    texto += `Nome: ${data.nome}\n`;
+    texto += `Tipo de veículo: ${data.veiculoTipo}\n`;
+
+    if (data.veiculoTipo === "Usado ou SemiNovo") {
+      texto += `Placa: ${data.placa}\n`;
+    } else {
+      texto += `Marca: ${data.marca}\n`;
+      texto += `Modelo: ${data.modelo}\n`;
+    }
+
+    texto += `Valor do veículo: R$ ${data.valorVeiculo.toLocaleString("pt-BR")}\n`;
+    texto += `Renda mensal: R$ ${data.renda.toLocaleString("pt-BR")}\n`;
+    texto += `Entrada: R$ ${data.entrada.toLocaleString("pt-BR")}\n\n`;
+    texto += `COD: ${cod}`;
+
+    const url = `https://wa.me/5511959145787?text=${encodeURIComponent(texto)}`;
+    window.open(url, "_blank");
+  }
+
+  // Inicialização
+  startConversation();
+</script>
+
+</body>
+</html>
