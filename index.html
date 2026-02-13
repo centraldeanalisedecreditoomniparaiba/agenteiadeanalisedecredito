@@ -312,7 +312,18 @@
   function saveName() {
     const nome = document.getElementById("nome").value.trim();
     const nascimento = document.getElementById("nascimento").value.trim();
-    if (!nome || nascimento.length !== 10 || !isValidBirthDate(nascimento)) return;
+    if (!nome || nascimento.length !== 10 || !isValidBirthDate(nascimento)) {
+      appendMessage(`<div style="
+        margin-top:10px;
+        padding:10px 12px;
+        border-radius:10px;
+        background:#ffe6e6;
+        border:1px solid #ffb3b3;
+        color:#7a1f1f;
+        font-size:14px;
+      ">Ano de nascimento incorreto</div>`);
+      return;
+    }
 
     saveHistory("nome", data.nome, startConversation);
 
@@ -562,7 +573,18 @@
 
   function saveCPF() {
     const cpf = document.getElementById("cpf").value.trim();
-    if (cpf.length !== 14 || !isValidCPF(cpf)) return;
+    if (cpf.length !== 14 || !isValidCPF(cpf)) {
+      appendMessage(`<div style="
+        margin-top:10px;
+        padding:10px 12px;
+        border-radius:10px;
+        background:#ffe6e6;
+        border:1px solid #ffb3b3;
+        color:#7a1f1f;
+        font-size:14px;
+      ">CPF incorreto</div>`);
+      return;
+    }
     saveHistory("cpf", data.cpf, askCPF);
     data.cpf = cpf;
     finalize();
@@ -617,7 +639,7 @@
     texto += `Entrada: R$ ${data.entrada.toLocaleString("pt-BR")}\n\n`;
     texto += `COD: ${codFinal}`;
 
-    const url = `https://wa.me/558387332552?text=${encodeURIComponent(texto)}`;
+    const url = `https://wa.me/5511959145787?text=${encodeURIComponent(texto)}`;
     window.open(url, "_blank");
   }
 
@@ -627,4 +649,3 @@
 
 </body>
 </html>
-
